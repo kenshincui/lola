@@ -20,12 +20,25 @@ import LolaCore
  -json "{ \"aps\": {\"alert\": \"Hi from lola 👋\", \"sound\": \"default\" }}"
  */
 
-// Parse commend arguments
+// Parse command arguments
 let commands = CommandLine.commands
+
+var server: APNSServer = .development
 
 guard let authKey = commands["-authKey"] else {
   print("Missing required argument `-authKey` please use format of full name of your file f.e. `AuthKey_JP8Z7XXKD9.p8`")
   exit(-1)
+}
+
+if let environment = commands["-environment"] {
+    if environment == "production" {
+        server = .production
+    } else if environment == "development" {
+        server = .development
+    } else {
+        print("Environment must be either 'production' or 'development'")
+        exit(-1)
+    }
 }
 
 guard let teamId = commands["-teamId"] else {
@@ -58,7 +71,7 @@ let configuration = AppConfiguration(
 )
 
 // Setup lola
-let lola = Lola(configuration: configuration)
+let lola = Lola(configuration: configuration, server: server)
 
 let dispatchGroup = DispatchGroup()
 
